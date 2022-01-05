@@ -1,0 +1,53 @@
+name: gcr-add-version-tags
+description: Push Docker image tags to Google Container Registry, based on version identifiers
+branding:
+  icon: tag
+  color: gray-dark
+inputs:
+  repository:
+    description: The docker repository e.g. `eu.gcr.io/project-12345/image-name`
+    required: true
+  source-tag:
+    description: The pre-existing tag to point to
+    required: true
+  major:
+    description: The major version identifier to use in the tag
+    required: true
+  minor:
+    description: The minor version identifier to use in the tag
+    required: true
+  patch:
+    description: The patch version identifier to use in the tag
+    required: true
+  push-latest:
+    description: Also set source tag as `latest`
+    required: true
+    default: false
+runs:
+  using: composite
+  steps:
+    - name: Add patch version tag
+      shell: bash
+      env:
+        SRC: ${{ inputs.repository }}:${{ inputs.source-tag }}
+        DST: ${{ inputs.repository }}:${{ inputs.major }}.${{ inputs.minor }}.${{ inputs.patch }}
+      run: gcloud -q container images add-tag ${{ env.SRC }} ${{ env.DST }}
+    - name: Add minor version tag
+      shell: bash
+      env:
+        SRC: ${{ inputs.repository }}:${{ inputs.source-tag }}
+        DST: ${{ inputs.repository }}:${{ inputs.major }}.${{ inputs.minor }}
+      run: gcloud -q container images add-tag ${{ env.SRC }} ${{ env.DST }}
+    - name: Add major version tag
+      shell: bash
+      env:
+        SRC: ${{ inputs.repository }}:${{ inputs.source-tag }}
+        DST: ${{ inputs.repository }}:${{ inputs.major }}
+      run: gcloud -q container images add-tag ${{ env.SRC }} ${{ env.DST }}
+    - name: Add `latest` tag
+      shell: bash
+      if: ${{ inputs.push-latest }}
+      env:
+        SRC: ${{ inputs.repository }}:${{ inputs.source-tag }}
+        DST: ${{ inputs.repository }}:latest
+      run: gcloud -q container images add-tag ${{ env.SRC }} ${{ env.DST }}
