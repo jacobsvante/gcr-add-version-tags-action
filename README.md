@@ -1,4 +1,6 @@
-GitHub action for adding Docker image tags to Google Container Registry, based on version identifiers
+GitHub action for adding Docker image tags to Google Container Registry, based on version identifiers.
+
+Please note that `gcloud` CLI must've been set up in a previous step. There's a dedicated action for that, found here: https://github.com/google-github-actions/setup-gcloud
 
 Example, used together with the excellent [release-please-action](https://github.com/google-github-actions/release-please-action):
 
@@ -25,9 +27,9 @@ jobs:
         uses: jacobsvante/gcr-add-version-tags-action@v0
         with:
           repository: eu.gcr.io/project-123456/my-package
-          source-tag: ${{ github.sha }}  # Must already exist in GCR repository
+          source-tag: ${{ github.sha }} # Must already exist in GCR repository
           major: ${{ steps.release.outputs.major }}
           minor: ${{ steps.release.outputs.minor }}
           patch: ${{ steps.release.outputs.patch }}
-          push-latest: true  # If you want to also push an updated `latest` tag
+          push-latest: true # If you want to also push an updated `latest` tag
 ```
